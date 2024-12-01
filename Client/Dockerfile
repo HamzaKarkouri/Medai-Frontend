@@ -1,28 +1,28 @@
 # Use the official Node.js image to build the React app
-FROM node:16 AS build
+FROM node:latest as build
 
-# Set the working directory in the container
+# Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json (if available) to the working directory
+# Copy package.json and package-lock.json first
 COPY package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy the entire project to the working directory
+# Copy the rest of the application files
 COPY . .
 
-# Build the React app
+# Build the React app (outputs to /app/dist)
 RUN npm run build
 
-# Use a lightweight Nginx image to serve the built React app
-FROM nginx:alpine
+# Use a lightweight Nginx image to serve the app
+FROM nginx:latest
 
-# Copy the build output to the Nginx HTML directory
-COPY --from=build /app/build /usr/share/nginx/html
+# Copy the React build output (dist folder) to the Nginx HTML directory
+COPY --from=build /app/dist /usr/share/nginx/html
 
-# Expose port 80 for HTTP traffic
+# Expose port 80
 EXPOSE 80
 
 # Start the Nginx server
